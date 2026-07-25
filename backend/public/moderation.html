@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>LOOKLIKE 모더레이션</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #f4f1ea; margin: 0; padding: 24px; color: #2b2118; }
+  h1 { font-size: 20px; }
+  .bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  input, select, button { padding: 8px 10px; border: 1px solid #b08968; border-radius: 4px; font-size: 14px; }
+  button { background: #2f6f5e; color: white; border: none; cursor: pointer; }
+  button.danger { background: #c1440e; }
+  button.ghost { background: #8b6f4e; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: white; border-radius: 6px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .imgs { display: flex; gap: 4px; }
+  .imgs img { width: 50%; height: 140px; object-fit: cover; border-radius: 4px; }
+  .meta { font-size: 12px; color: #8b6f4e; margin: 6px 0; }
+  .actions { display: flex; gap: 6px; margin-top: 8px; }
+  .empty { color: #8b6f4e; padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>📌 LOOKLIKE 모더레이션 대시보드</h1>
+  <div class="bar">
+    <input id="apiBase" placeholder="API 서버 주소 (예: https://api.looklike.com)" style="width:320px" />
+    <input id="adminKey" placeholder="관리자 키" type="password" style="width:220px" />
+    <select id="statusFilter">
+      <option value="hidden">신고로 자동 비공개된 글</option>
+      <option value="visible">공개중</option>
+      <option value="removed">삭제됨</option>
+    </select>
+    <button onclick="load()">불러오기</button>
+  </div>
+  <div id="list" class="grid"></div>
+  <script>
+    function headers() {
+      return { "X-Admin-Key": document.getElementById("adminKey").value };
+    }
+    function apiBase() {
+      return document.getElementById("apiBase").value.replace(/\/$/, "");
+    }
+
+    async function load() {
+      const status = document.getElementById("statusFilter").value;
+      const listEl = document.getElementById("list");
+      listEl.innerHTML = '<p class="empty">불러오는 중...</p>';
+      try {
+        const res = await fetch(`${apiBase()}/admin/posts?status=${status}`, { headers: headers() });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "불러오기 실패");
+        if (data.posts.length === 0) {
+          listEl.innerHTML = '<p class="empty">해당 상태의 게시물이 없어요.</p>';
+          return;
+        }
+        listEl.innerHTML = "";
+        data.posts.forEach((p) => listEl.appendChild(renderCard(p, status)));
+      } catch (e) {
+        listEl.innerHTML = `<p class="empty">${e.message}</p>`;
+      }
+    }
+
+    function renderCard(p, status) {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        <div class="imgs">
+          <img src="${p.image_a_url}" />
+          <img src="${p.image_b_url}" />
+        </div>
+        <div class="meta">신고 ${p.report_count}건 · ${p.uploader || "익명"} · ${new Date(p.created_at).toLocaleString()}</div>
+        <div class="meta">${p.caption || ""}</div>
+        <div class="actions"></div>
+      `;
+      const actions = div.querySelector(".actions");
+
+      if (status === "hidden") {
+        const approveBtn = document.createElement("button");
+        approveBtn.textContent = "공개로 복구";
+        approveBtn.onclick = () => act(p.id, "restore");
+        actions.appendChild(approveBtn);
+      }
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "danger";
+      delBtn.textContent = "완전 삭제";
+      delBtn.onclick = () => act(p.id, "delete");
+      actions.appendChild(delBtn);
+
+      return div;
+    }
+
+    async function act(id, action) {
+      if (action === "delete" && !confirm("정말 완전히 삭제할까요? 되돌릴 수 없어요.")) return;
+      const url =
+        action === "restore"
+          ? `${apiBase()}/admin/posts/${id}/restore`
+          : `${apiBase()}/admin/posts/${id}`;
+      const method = action === "restore" ? "POST" : "DELETE";
+      const res = await fetch(url, { method, headers: headers() });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "처리 중 오류가 발생했어요.");
+        return;
+      }
+      load();
+    }
+  </script>
+</body>
+</html>

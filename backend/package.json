@@ -1,0 +1,25 @@
+{
+  "name": "looklike-backend",
+  "version": "1.0.0",
+  "description": "LOOKLIKE - 닮은 사진 게시판 백엔드 API",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "multer": "^1.4.5-lts.1",
+    "nanoid": "^5.0.7",
+    "pg": "^8.13.0",
+    "sharp": "^0.33.5"
+  },
+  "dependencies_note": "이미지는 Cloudflare R2(S3 호환)에 저장하므로 @aws-sdk/client-s3가 필요해요 - optionalDependencies에 있어요.",
+  "optionalDependencies": {
+    "@aws-sdk/client-s3": "^3.658.1"
+  }
+}

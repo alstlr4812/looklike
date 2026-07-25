@@ -1,0 +1,198 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Inter', sans-serif; }
+
+.board {
+  min-height: 100vh;
+  width: 100%;
+  padding-bottom: 96px;
+  background: repeating-linear-gradient(45deg, #A9754F, #A9754F 2px, #9C6B45 2px, #9C6B45 4px);
+}
+
+.header {
+  width: 100%;
+  background: #3E2723;
+  border-bottom: 4px solid #2B1A15;
+  padding: 32px 16px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.header h1 {
+  font-family: 'Special Elite', monospace;
+  color: #F4EFE3;
+  font-size: 32px;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+.header p {
+  color: #C9B79C;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.main { max-width: 920px; margin: 0 auto; padding: 32px 16px 0; }
+
+.banner-ad {
+  width: 100%;
+  background: #E4D9C4;
+  border: 2px dashed #B08968;
+  border-radius: 4px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #5A4632;
+  margin-bottom: 32px;
+  font-size: 13px;
+}
+.banner-ad .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #8B6F4E; }
+
+.upload-btn-wrap { display: flex; justify-content: center; margin-bottom: 32px; }
+.btn {
+  background: #2F6F5E;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.btn:hover { background: #265A4C; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn.danger { background: #C1440E; }
+.btn.ghost { background: transparent; color: #8B6F4E; border: 1px solid #B08968; box-shadow: none; }
+
+.state-msg { text-align: center; color: #F4EFE3; padding: 60px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+.grid { display: grid; grid-template-columns: 1fr; gap: 40px 24px; padding-bottom: 16px; }
+@media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+.card {
+  position: relative;
+  background: #FAF6EF;
+  padding: 12px 12px 16px;
+  border-radius: 3px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 5; }
+
+.pin {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #C1440E;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.4);
+}
+
+.imgs { position: relative; display: flex; gap: 4px; }
+.imgs img { width: 50%; height: 180px; object-fit: cover; display: block; background: #EDE7DA; }
+.eq-badge {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #2F6F5E;
+  color: white;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  border: 2px solid #FAF6EF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.labels-row { display: flex; margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8B6F4E; }
+.labels-row span { width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.labels-row span:last-child { text-align: right; }
+
+.caption { color: #2B2118; font-size: 14px; margin: 8px 0 4px; font-weight: 500; }
+.meta-row { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #8B6F4E; }
+
+.card-actions { display: flex; gap: 6px; margin-top: 10px; }
+.card-actions button {
+  flex: 1;
+  font-size: 11px;
+  padding: 5px 0;
+  border-radius: 3px;
+  border: 1px solid #B08968;
+  background: white;
+  color: #5A4632;
+  cursor: pointer;
+}
+.card-actions button:hover { background: #EDE7DA; }
+.card-actions button.report:hover { color: #C1440E; border-color: #C1440E; }
+.card-actions button.delete { color: #C1440E; border-color: #C1440E; }
+
+.ad-card {
+  position: relative;
+  background: #E4D9C4;
+  border: 2px dashed #B08968;
+  border-radius: 3px;
+  padding: 20px;
+  min-height: 160px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.ad-card .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #8B6F4E; margin-bottom: 8px; }
+.ad-card .title { font-weight: 600; color: #5A4632; font-size: 14px; margin: 0 0 4px; }
+.ad-card .body { font-size: 12px; color: #8B6F4E; margin: 0; }
+
+.more-wrap { display: flex; justify-content: center; margin-top: 16px; }
+
+/* 모달 */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(43,33,24,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px; z-index: 50;
+}
+.modal {
+  background: #FAF6EF;
+  border-radius: 4px;
+  width: 100%; max-width: 420px;
+  padding: 24px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 { font-family: 'Special Elite', monospace; font-size: 18px; color: #2B2118; margin: 0 0 4px; }
+.modal .sub { font-size: 12px; color: #8B6F4E; margin-bottom: 16px; }
+.modal .close-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; color: #8B6F4E; font-size: 18px; }
+
+.picker-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.picker {
+  flex: 1;
+  height: 120px;
+  border: 2px dashed #B08968;
+  border-radius: 3px;
+  background: #EDE7DA;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  color: #8B6F4E;
+  font-size: 12px;
+  text-align: center;
+}
+.picker img { width: 100%; height: 100%; object-fit: cover; }
+
+input[type="text"], textarea, select {
+  width: 100%;
+  border: 1px solid #B08968;
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: white;
+  color: #2B2118;
+  margin-bottom: 8px;
+  font-family: inherit;
+}
+.label-row { display: flex; gap: 8px; }
+.label-row input { width: 50%; }
+
+.error-text { color: #C1440E; font-size: 12px; margin-bottom: 8px; }
