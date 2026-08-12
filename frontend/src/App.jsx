@@ -42,32 +42,42 @@ function AdCard() {
 function PostCard({ post, myTokens, onReport, onDelete }) {
   const [showReport, setShowReport] = useState(false);
   const canDelete = Boolean(myTokens[post.id]);
+  const uploaderName = post.uploader || "익명";
 
   return (
     <div className="card">
-      <div className="pin" />
+      <div className="card-header">
+        <div className="avatar">{uploaderName[0]}</div>
+        <div className="card-header-text">
+          <span className="username">{uploaderName}</span>
+          <span className="timestamp">{formatTime(post.timestamp)}</span>
+        </div>
+      </div>
       <div className="imgs">
         <img src={post.imageA} alt={post.labelA || "사진 A"} loading="lazy" />
         <img src={post.imageB} alt={post.labelB || "사진 B"} loading="lazy" />
         <div className="eq-badge">≈</div>
       </div>
-      <div className="labels-row">
-        <span>{post.labelA || "사진 A"}</span>
-        <span>{post.labelB || "사진 B"}</span>
-      </div>
-      {post.caption && <p className="caption">{post.caption}</p>}
-      <div className="meta-row">
-        <span>{post.uploader || "익명"}</span>
-        <span>{formatTime(post.timestamp)}</span>
-      </div>
       <div className="card-actions">
         <button className="report" onClick={() => setShowReport(true)}>
-          신고
+          🚩 신고
         </button>
         {canDelete && (
           <button className="delete" onClick={() => onDelete(post.id)}>
-            삭제
+            🗑 삭제
           </button>
+        )}
+      </div>
+      <div className="card-body">
+        <div className="labels-row">
+          <span>{post.labelA || "사진 A"}</span>
+          <span>{post.labelB || "사진 B"}</span>
+        </div>
+        {post.caption && (
+          <p className="caption">
+            <span className="username">{uploaderName}</span>
+            {post.caption}
+          </p>
         )}
       </div>
 
