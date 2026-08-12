@@ -58,7 +58,7 @@ body {
 }
 .banner-ad .tag { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #C7C7C7; font-weight: 600; }
 
-.upload-btn-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+.upload-btn-wrap { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
 .btn {
   background: #0095F6;
   color: white;

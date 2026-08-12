@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { fetchPosts, createPost, reportPost, deletePost } from "./api.js";
 
+const SITE_URL = "https://looklike-sigma.vercel.app/";
 const TOKENS_KEY = "looklike_my_post_tokens"; // { [postId]: deleteToken }
 const REPORT_REASONS = [
   { value: "nudity", label: "선정적인 콘텐츠" },
@@ -278,6 +279,28 @@ export default function App() {
     }
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: "LOOKLIKE - 닮은 사진 게시판",
+      text: "서로 닮은 사진을 나란히 올리고 구경하는 게시판, 구경하러 오세요!",
+      url: SITE_URL,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // 사용자가 공유를 취소한 경우 등은 조용히 무시
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(SITE_URL);
+      alert("링크가 복사됐어요! 원하는 곳에 붙여넣어 공유해보세요.");
+    } catch {
+      alert(`아래 주소를 복사해서 공유해주세요:\n${SITE_URL}`);
+    }
+  };
+
   const gridItems = [];
   posts.forEach((p, i) => {
     gridItems.push({ type: "post", data: p, key: p.id });
@@ -300,6 +323,7 @@ export default function App() {
 
         <div className="upload-btn-wrap">
           <button className="btn" onClick={() => setShowUpload(true)}>+ 닮은꼴 올리기</button>
+          <button className="btn ghost" onClick={handleShare}>🔗 공유하기</button>
         </div>
 
         {loading && <p className="state-msg">게시판을 불러오는 중...</p>}
