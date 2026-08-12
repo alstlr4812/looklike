@@ -98,6 +98,36 @@ npm run dev              # http://localhost:5173
 - **DMCA/저작권 신고 대응 절차**를 마련하세요 (신고 사유에 이미 포함되어 있어요).
 - **속도 제한**: 업로드/신고 모두 IP 기준 rate limit이 걸려 있지만, 서비스가 커지면 Cloudflare 같은 봇 방어 레이어를 앞단에 두는 걸 추천해요.
 
+## 데이터 백업 (자동)
+
+`.github/workflows/db-backup.yml`에 GitHub Actions로 매일 자동 DB 백업이 설정되어 있어요. Render 서버가 잠들어 있어도(무료 요금제 특성) 상관없이 GitHub 쪽에서 독립적으로 실행돼요.
+
+- **동작 방식**: 매일 UTC 18:00(한국시간 새벽 3시)에 `pg_dump`로 PostgreSQL 전체를 덤프 → gzip 압축 → Cloudflare R2의 `backups/` 폴더에 업로드. 최근 30개(약 한 달치)만 남기고 오래된 백업은 자동 삭제돼요.
+- **이미지는 백업 대상이 아니에요**: R2 자체가 이미 영구 저장소라 별도 백업이 필요 없어요 (Render 무료 디스크처럼 사라지지 않아요). 백업은 게시글 텍스트/메타데이터가 들어있는 Postgres DB만 대상으로 해요.
+
+### 설정 방법 (최초 1회, GitHub에서)
+
+1. GitHub 저장소 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**으로 아래 5개를 등록하세요:
+
+   | Secret 이름 | 값 |
+   |---|---|
+   | `DB_BACKUP_DATABASE_URL` | Render Postgres의 **External Database URL** (Internal 아님 — GitHub은 Render 네트워크 밖이라 External 주소가 필요해요) |
+   | `R2_ACCESS_KEY_ID` | 백엔드 `.env`의 `S3_ACCESS_KEY_ID`와 동일한 값 |
+   | `R2_SECRET_ACCESS_KEY` | 백엔드 `.env`의 `S3_SECRET_ACCESS_KEY`와 동일한 값 |
+   | `R2_ENDPOINT` | 백엔드 `.env`의 `S3_ENDPOINT`와 동일한 값 |
+   | `R2_BUCKET` | 백엔드 `.env`의 `S3_BUCKET`과 동일한 값 (이미지랑 같은 버킷을 쓰되 `backups/` 폴더로 구분돼요) |
+
+2. 등록 후 저장소 **Actions** 탭 → **DB 백업 (LOOKLIKE)** 워크플로 → **Run workflow** 버튼으로 지금 바로 한 번 테스트 실행해볼 수 있어요.
+
+### 복구 방법 (문제가 생겼을 때)
+
+1. Cloudflare R2 대시보드에서 `backups/looklike-backup-YYYYMMDD-HHMMSS.sql.gz` 파일을 다운로드하세요.
+2. 터미널에서 압축을 풀고 복원하세요:
+   ```bash
+   gunzip -c looklike-backup-YYYYMMDD-HHMMSS.sql.gz | psql "$DATABASE_URL"
+   ```
+   ⚠️ 기존 DB에 데이터가 이미 있는 상태에서 복원하면 충돌이 날 수 있어요. 완전히 새로 만든 빈 Postgres 데이터베이스에 복원하는 걸 추천해요.
+
 ## 확장 아이디어
 
 - 좋아요/댓글 기능

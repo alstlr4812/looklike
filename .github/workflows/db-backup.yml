@@ -1,0 +1,59 @@
+name: DB 백업 (LOOKLIKE)
+
+on:
+  schedule:
+    # 매일 UTC 18:00 (한국 시간 새벽 3시)에 실행 — 트래픽이 적은 시간대예요.
+    - cron: '0 18 * * *'
+  workflow_dispatch: {}  # GitHub Actions 탭에서 "Run workflow" 버튼으로 수동 실행도 가능
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PostgreSQL 클라이언트 + AWS CLI 설치
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client awscli
+
+      - name: DB 덤프 생성 (gzip 압축)
+        env:
+          DATABASE_URL: ${{ secrets.DB_BACKUP_DATABASE_URL }}
+        run: |
+          set -e
+          FILENAME="looklike-backup-$(date -u +%Y%m%d-%H%M%S).sql.gz"
+          echo "FILENAME=$FILENAME" >> "$GITHUB_ENV"
+          pg_dump "$DATABASE_URL" --no-owner --no-privileges | gzip > "$FILENAME"
+
+      - name: Cloudflare R2에 업로드
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          set -e
+          aws s3 cp "$FILENAME" "s3://${{ secrets.R2_BUCKET }}/backups/$FILENAME" \
+            --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+
+      - name: 오래된 백업 정리 (최근 30개만 보관)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: |
+          set -e
+          OLD_KEYS=$(aws s3api list-objects-v2 \
+            --bucket "${{ secrets.R2_BUCKET }}" \
+            --prefix "backups/" \
+            --endpoint-url "${{ secrets.R2_ENDPOINT }}" \
+            --query 'sort_by(Contents, &LastModified)[:-30].Key' \
+            --output text)
+          if [ -n "$OLD_KEYS" ] && [ "$OLD_KEYS" != "None" ]; then
+            echo "$OLD_KEYS" | tr '\t' '\n' | while read -r key; do
+              if [ -n "$key" ]; then
+                echo "오래된 백업 삭제: $key"
+                aws s3 rm "s3://${{ secrets.R2_BUCKET }}/$key" --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+              fi
+            done
+          else
+            echo "정리할 오래된 백업이 없어요."
+          fi
