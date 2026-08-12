@@ -2,18 +2,18 @@ name: DB 백업 (LOOKLIKE)
 
 on:
   schedule:
-    # 매일 UTC 18:00 (한국 시간 새벽 3시)에 실행 — 트래픽이 적은 시간대예요.
     - cron: '0 18 * * *'
-  workflow_dispatch: {}  # GitHub Actions 탭에서 "Run workflow" 버튼으로 수동 실행도 가능
+  workflow_dispatch: {}
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - name: PostgreSQL 클라이언트 + AWS CLI 설치
+      - name: PostgreSQL 클라이언트 설치 (AWS CLI는 러너에 기본 설치되어 있어요)
         run: |
           sudo apt-get update
-          sudo apt-get install -y postgresql-client awscli
+          sudo apt-get install -y postgresql-client
+          aws --version
 
       - name: DB 덤프 생성 (gzip 압축)
         env:
