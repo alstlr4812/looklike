@@ -360,6 +360,17 @@ export default function App() {
         )}
       </main>
 
+      <footer className="site-footer">
+        <p>
+          문의: <a href="mailto:banana2917@naver.com">banana2917@naver.com</a>
+        </p>
+        <p>
+          <a href="https://catchucha.netlify.app" target="_blank" rel="noopener noreferrer">
+            catchucha.netlify.app
+          </a>
+        </p>
+      </footer>
+
       {showUpload && (
         <UploadModal onClose={() => setShowUpload(false)} onSubmit={handleUpload} />
       )}

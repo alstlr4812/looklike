@@ -169,6 +169,17 @@ body {
 
 .more-wrap { display: flex; justify-content: center; margin-top: 16px; }
 
+.site-footer {
+  max-width: 600px;
+  margin: 40px auto 0;
+  padding: 20px 16px 32px;
+  text-align: center;
+  border-top: 1px solid #DBDBDB;
+}
+.site-footer p { margin: 4px 0; font-size: 12px; color: #8E8E8E; }
+.site-footer a { color: #8E8E8E; text-decoration: none; }
+.site-footer a:hover { color: #262626; text-decoration: underline; }
+
 /* 모달 */
 .overlay {
   position: fixed; inset: 0;
